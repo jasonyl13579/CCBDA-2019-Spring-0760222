@@ -1,7 +1,6 @@
-*.pdf
-*.png
+*.txt
 *.zip
-
+*.doc
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

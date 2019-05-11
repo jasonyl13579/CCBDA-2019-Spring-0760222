@@ -80,9 +80,10 @@ def inverse_scaler(x, mean, div):
 #%% multi-predict
 
 #source = ['SNPS']
+
 source = ['INTC', 'AMD', 'CSCO','AAPL','MU','NVDA','QCOM','AMZN','NFLX','FB','GOOG','BABA','EBAY','IBM','XLNX','TXN','NOK','TSLA','MSFT','SNPS']
 predict = []
-date = '0508'
+date = '0510'
 for i in range (len(source)):
     test = readTrain("data/" + date + "/" + source[i] + ".csv")
     test_Aug = augFeatures(test)
@@ -93,6 +94,7 @@ for i in range (len(source)):
     # display unknown prediction
     print (Y_predict[0], Y_last[0])
     print((Y_predict[0] - Y_last[0]) / Y_last[0])
+    
     if (((Y_predict[0] - Y_last[0]) / Y_last[0] *100) >= 2): 
         print (source[i] + ": 0")
         predict.append(0)
@@ -102,7 +104,8 @@ for i in range (len(source)):
     else:
         print (source[i] + ": 2")
         predict.append(2)
-    
+    '''
+    print((y_t[0] - Y_last[1]) / Y_last[1]*100)
     if (((y_t[0] - Y_last[1]) / Y_last[1] *100) >= 2): 
         print ("Yesterday_True" + ": 0")
     elif(((y_t[0] - Y_last[1]) / Y_last[1] *100) >= -2):
@@ -111,12 +114,12 @@ for i in range (len(source)):
         print ("Yesterday_True" + ": 2")
    # print ("Yesterday_True:" + str(Y_true[0]))
     if (((Y_predict[1] - Y_last[1]) / Y_last[1] *100) >= 2): 
-        print ("Yesterday_predict" + ": 0")
+        print ("Yesterday_predict" + ": 0\n")
     elif(((Y_predict[1] - Y_last[1]) / Y_last[1] *100) >= -2):
-        print ("Yesterday_predict" + ": 1")
+        print ("Yesterday_predict" + ": 1\n")
     else:
-        print ("Yesterday_predict" + ": 2")
-    
+        print ("Yesterday_predict" + ": 2\n")
+    '''
 with open( 'data/' + date + '/' + date + '_0760222.txt', 'w+') as f:
     for x in predict:
         f.write(str(x)+ '\n')
@@ -129,14 +132,14 @@ train_Aug = augFeatures(train)
 
 train_norm = normalize(train_Aug)
 
-X_train, Y_train, test = buildTrain(train_norm, day, 1)
+X_train, Y_train, test = buildTrain(train_norm, input_days, 1)
 
 
 Y_true = np.squeeze(inverse_scaler(Y_train, adj_mean, adj_div))
 Y = model.predict(X_train)
 Y_predict = np.squeeze(inverse_scaler(model.predict(X_train),adj_mean, adj_div))
 #print (model.predict(X_train[0:10]))
-Y_last = inverse_scaler(X_train[:,day-1,3],adj_mean, adj_div)
+Y_last = inverse_scaler(X_train[:,input_days-1,3],adj_mean, adj_div)
 plt.plot(Y_predict)
 plt.plot(Y_true)
 Rchange1 = np.zeros(np.shape(Y_predict))

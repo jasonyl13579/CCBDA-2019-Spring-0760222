@@ -85,7 +85,7 @@ def output_result(history):
     plt.legend(['train', 'test'], loc='upper left') 
     plt.show()
 
-source = ['INTC', 'AMD', 'CSCO','AAPL','MU','NVDA','QCOM','AMZN','NFLX','FB','EBAY','IBM','XLNX','TXN','NOK','TSLA','MSFT','SNPS']
+source = ['INTC', 'AMD', 'CSCO','AAPL','MU','NVDA','QCOM','AMZN','NFLX','FB','GOOG','BABA','EBAY','IBM','XLNX','TXN','NOK','TSLA','MSFT','SNPS']
 for i in range (len(source)):
     train = readTrain(source[i] + ".csv")
 
