@@ -1,5 +1,5 @@
 import tensorflow as tf
-
+from preprocess import *
 
 def gated_linear_layer(inputs, gates, name=None):
 
@@ -273,7 +273,7 @@ def domain_classifier(inputs, reuse=False, scope_name='classifier'):
         print(f'domain_classifier_d4: {d4.shape}')
         print(f'domain_classifier_d4_p: {d4_p.shape}')
 
-        d5 = tf.layers.conv2d(d4_p, 4, [1, 4], padding='same', name=scope_name + '_conv2d05')
+        d5 = tf.layers.conv2d(d4_p, SPEAKERS_NUM, [1, 4], padding='same', name=scope_name + '_conv2d05')
         d5_p = tf.layers.max_pooling2d(d5, [1, 2], strides=[1, 2], name=scope_name + 'p5')
         print(f'domain_classifier_d5: {d5.shape}')
         print(f'domain_classifier_d5_p: {d5_p.shape}')

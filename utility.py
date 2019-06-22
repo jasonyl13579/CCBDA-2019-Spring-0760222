@@ -14,16 +14,16 @@ def get_speakers(trainset: str = './data/fourspeakers'):
     all_sub_folder = glob.glob(p)
 
     all_speaker = [s.rsplit('/', maxsplit=1)[1] for s in all_sub_folder]
-
+    print (all_speaker)
     return all_speaker
 
 
 class Normalizer(object):
     '''Normalizer: convience method for fetch normalize instance'''
 
-    def __init__(self, statfolderpath: str = './etc'):
+    def __init__(self, statfolderpath: str = './etc', input_dir: str = './data/fourspeakers'):
 
-        self.all_speaker = get_speakers()
+        self.all_speaker = get_speakers(input_dir)
         self.folderpath = statfolderpath
 
         self.norm_dict = self.normalizer_dict()
@@ -58,9 +58,9 @@ class Normalizer(object):
             except:
                 raise Exception('====no match files!====')
             print(f'found stat file: {stat_filepath}')
-            t = np.load(stat_filepath)
+            t = np.load(stat_filepath,allow_pickle = True)
             d_temp = t.f.arr_0.item()
-            # print(d_temp.keys())
+            #print(d_temp.keys())
 
             d[one_speaker] = d_temp
 
@@ -82,10 +82,10 @@ class Normalizer(object):
 
 class GenerateStatics(object):
 
-    def __init__(self, folder: str = './data/processed'):
+    def __init__(self, folder: str = './data/processed', input_dir: str = './data/fourspeakers'):
         self.folder = folder
 
-        self.all_speaker = get_speakers()
+        self.all_speaker = get_speakers(input_dir)
 
         #key is speaker(SF1, SF2...) and value is corresponding file list
         self.include_dict = {}
@@ -154,7 +154,7 @@ class GenerateStatics(object):
             if len(arr01) == 0:
                 continue
             for one_file in arr01:
-                t = np.load(os.path.join(self.folder, one_file))
+                t = np.load(os.path.join(self.folder, one_file),allow_pickle = True)
                 d = t.f.arr_0.item()
                 f0_ = np.reshape(d['f0'], [-1, 1])
                 # print(f'f0 shape: {f0_.shape}')

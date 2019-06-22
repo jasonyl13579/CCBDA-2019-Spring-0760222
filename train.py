@@ -22,10 +22,9 @@ def get_files_labels(pattern: str):
     return files, names
 
 
-def train(processed_dir: str, test_wav_dir: str):
+def train(processed_dir: str, test_wav_dir: str, out_dir: str, input_dir: str):
     timestr = time.strftime("%Y-%m-%d-%H-%M", time.localtime())  #like '2018-10-10-14-47'
-
-    all_speaker = get_speakers()
+    all_speaker = get_speakers(trainset=input_dir)
     label_enc = LabelEncoder()
     label_enc.fit(all_speaker)
 
@@ -34,32 +33,34 @@ def train(processed_dir: str, test_wav_dir: str):
     lambda_classifier = 3
 
     generator_learning_rate = 0.0002
-    generator_learning_rate_decay = generator_learning_rate / 20000
+    generator_learning_rate_decay = generator_learning_rate / 2000000
     discriminator_learning_rate = 0.0002
-    discriminator_learning_rate_decay = discriminator_learning_rate / 20000
+    discriminator_learning_rate_decay = discriminator_learning_rate / 2000000
     domain_classifier_learning_rate = 0.0001
-    domain_classifier_learning_rate_decay = domain_classifier_learning_rate / 20000
+    domain_classifier_learning_rate_decay = domain_classifier_learning_rate / 2000000
     #====================load data================#
     print('Loading Data...')
 
     files, names = get_files_labels(os.path.join(processed_dir, '*.npy'))
     assert len(files) > 0
 
-    normlizer = Normalizer()
+    normlizer = Normalizer(input_dir=input_dir)
 
     exclude_dict = {}  #key that not appear in the value list.(eg. SF1:[TM1**.wav,TM2**.wav,SF2**.wav ... ])
     for s in all_speaker:
         p = os.path.join(processed_dir, '*.npy')  #'./data/processed/*.npy'
         temp = [fn for fn in glob.glob(p) if fn.find(s) == -1]
         exclude_dict[s] = temp
+        print (s)
 
     print('Loading Data Done.')
-
+    #print(exclude_dict)
     #====================create model=============#
     BATCHSIZE = 8
     model = StarGANVC(num_features=FEATURE_DIM, frames=FRAMES)
+    #model.load('out/100_2019-05-28-01-00/model/starganvc_model')
     #====================start train==============#
-    EPOCH = 101
+    EPOCH = 1001
 
     num_samples = len(files)
     for epoch in range(EPOCH):
@@ -70,7 +71,7 @@ def train(processed_dir: str, test_wav_dir: str):
         for i in range(num_samples // BATCHSIZE):
             num_iterations = num_samples // BATCHSIZE * epoch + i
 
-            if num_iterations > 2500:
+            if num_iterations > 250000:
                 
                 domain_classifier_learning_rate = max(0, domain_classifier_learning_rate - domain_classifier_learning_rate_decay)
                 generator_learning_rate = max(0, generator_learning_rate - generator_learning_rate_decay)
@@ -167,7 +168,7 @@ def train(processed_dir: str, test_wav_dir: str):
         if epoch % 10 == 0 and epoch != 0:
             print('============test model============')
             #out put path
-            file_path = os.path.join('./out', f'{epoch}_{timestr}')
+            file_path = os.path.join(out_dir, f'{epoch + 300}_{timestr}')
             if not os.path.exists(file_path):
                 os.makedirs(file_path)
 
@@ -266,20 +267,25 @@ if __name__ == '__main__':
 
     processed_dir = './data/processed'
     test_wav_dir = './data/fourspeakers_test'
-
+    out_dir = './out/fourspeakers'
+    input_dir =  './data/fourspeakers'
     parser = argparse.ArgumentParser(description='Train StarGAN Voice conversion model.')
 
+    parser.add_argument('--input_dir', type=str, help='the direcotry contains data need to be processed', default=input_dir)
     parser.add_argument('--processed_dir', type=str, help='train dataset directory that contains processed npy and npz files', default=processed_dir)
     parser.add_argument('--test_wav_dir', type=str, help='test directory that contains raw audios', default=test_wav_dir)
-
+    parser.add_argument('--out_dir', type=str, help='out directory', default=out_dir)
+    
     argv = parser.parse_args()
 
     processed_dir = argv.processed_dir
     test_wav_dir = argv.test_wav_dir
-
+    input_dir = argv.input_dir
+    out_dir = argv.out_dir
+    
     start_time = time.time()
 
-    train(processed_dir, test_wav_dir)
+    train(processed_dir, test_wav_dir, out_dir, input_dir)
 
     end_time = time.time()
     time_elapsed = end_time - start_time
