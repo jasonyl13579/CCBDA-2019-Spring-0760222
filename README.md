@@ -1,3 +1,8 @@
+## Usage 
+```
+python server_example.py
+```
+See voice_recognize_readme.ipynb for more Dependencies illustration
 ## Data Set
 
 https://drive.google.com/drive/folders/1QLGBcHz3cFQ8DMm4jnFc3LtDNeoIKJnc
